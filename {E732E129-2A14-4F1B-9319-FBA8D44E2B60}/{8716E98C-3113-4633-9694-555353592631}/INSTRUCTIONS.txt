@@ -1,7 +1,7 @@
 INSTRUCTIONS FOR PACKAGING AND DEPLOYMENT
 
 1.  **Zip the Folder**:
-    - Select the content of the `TargetedEmailSelector` folder (ensure `manifest.json` is at the root of the zip file).
+    - Select the content of the `{8716E98C-3113-4633-9694-555353592631}` folder (ensure `manifest.json` is at the root of the zip file).
     - Zip these files.
     - Rename the zip file to `{8716E98C-3113-4633-9694-555353592631}.zip`.
 
@@ -18,6 +18,8 @@ INSTRUCTIONS FOR PACKAGING AND DEPLOYMENT
       webcc.min.js
     manifest.json
     ```
+
+    **Important:** The Zip file name must match the GUID defined in `manifest.json` (which is `8716E98C-3113-4633-9694-555353592631`).
 
 2.  **Deploy to WinCC Unified**:
     - Copy the `{8716E98C-3113-4633-9694-555353592631}.zip` file to the UserFiles/CustomControls folder on your WinCC Unified PC Runtime or Unified Comfort Panel.

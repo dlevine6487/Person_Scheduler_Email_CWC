@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Generated with CWC AI Creator from https://ai.hmix.tech -->
+    <script src="libs/papaparse.min.js"></script>
+    <script src="webcc.min.js"></script>
+    <style>
+        /* Tailwind-like base styles for offline use */
+        * { box-sizing: border-box; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-none { flex: none; }
+        .flex-1 { flex: 1; }
+        .flex-wrap { flex-wrap: wrap; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .items-center { align-items: center; }
+        .items-end { align-items: flex-end; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-5 { padding: 1.25rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .m-auto { margin: auto; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-auto { margin-top: auto; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .w-full { width: 100%; }
+        .w-96 { width: 24rem; }
+        .h-2 { height: 0.5rem; }
+        .h-full { height: 100%; }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-lg { border-radius: 0.5rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-full { border-radius: 9999px; }
+        .border { border: 1px solid currentColor; }
+        .border-b { border-bottom: 1px solid currentColor; }
+        .border-t { border-top: 1px solid currentColor; }
+        .border-l { border-left: 1px solid currentColor; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .font-mono { font-family: monospace; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-tight { letter-spacing: -0.025em; }
+        .tracking-wider { letter-spacing: 0.05em; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .leading-tight { line-height: 1.25; }
+        .leading-relaxed { line-height: 1.625; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .z-50 { z-index: 50; }
+        .bg-sky-600 { background-color: #0284c7; }
+        .hover\:bg-sky-500:hover { background-color: #0ea5e9; }
+        .text-white { color: #ffffff; }
+        .text-sky-500 { color: #0ea5e9; }
+        .text-emerald-500 { color: #10b981; }
+        .text-amber-500 { color: #f59e0b; }
+        
+        :root {
+            --bg-main: #0f172a;
+            --bg-panel: rgba(30, 41, 59, 0.7);
+            --bg-header: rgba(15, 23, 42, 0.5);
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --card-inactive: rgba(30, 41, 59, 0.7);
+            --code-bg: #020617;
+            --bg-selected: rgba(56, 189, 248, 0.15);
+            --bg-active: rgba(16, 185, 129, 0.05);
+        }
+        .light-theme {
+            --bg-main: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-header: #f1f5f9;
+            --text-main: #0f172a;
+            --text-dim: #475569;
+            --border: rgba(0, 0, 0, 0.1);
+            --card-inactive: #f1f5f9;
+            --code-bg: #e2e8f0;
+            --bg-selected: #bae6fd;
+            --bg-active: #dcfce7;
+        }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        .light-theme .glass-panel {
+            backdrop-filter: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .shift-active {
+            border: 2px solid #10b981;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            background: var(--bg-active);
+        }
+        .shift-inactive {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+            background: var(--card-inactive);
+        }
+        .manual-selected {
+            border: 2px solid #38bdf8 !important;
+            background: var(--bg-selected) !important;
+            opacity: 1 !important;
+            filter: none !important;
+            backdrop-filter: none !important;
+        }
+        input[type="range"] {
+            accent-color: #38bdf8;
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-dim) var(--bg-main);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: var(--bg-main);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--text-dim);
+            border-radius: 3px;
+        }
+        .badge-critical { background: #ef4444; color: white; }
+        .badge-warning { background: #f59e0b; color: white; }
+        .badge-info { background: #3b82f6; color: white; }
+        #tsv-editor-overlay {
+            display: none;
+            z-index: 50;
+        }
+        .code-block {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Header -->
+    <div class="flex-none p-6 border-b" style="background: var(--bg-header); border-color: var(--border);">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 id="main-title" class="text-2xl font-bold tracking-tight uppercase" style="color: var(--text-main);">Alarm Notification Router</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <div class="pulse-dot"></div>
+                    <p id="main-subtitle" class="text-emerald-500 text-xs font-bold uppercase tracking-widest">Live Shift-Based Routing Active</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex flex-col items-end">
+                    <label id="routing-mode-label" class="text-xs uppercase font-bold mb-1" style="color: var(--text-dim);">Routing Mode</label>
+                    <div class="flex p-1 rounded-lg border" style="background: var(--bg-main); border-color: var(--border);">
+                        <button id="mode-auto" onclick="setMode('auto')" class="px-3 py-1 text-xs font-bold rounded bg-sky-600 text-white">AUTO</button>
+                        <button id="mode-manual" onclick="setMode('manual')" class="px-3 py-1 text-xs font-bold rounded" style="color: var(--text-dim);">MANUAL</button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleThemeManual()" class="p-2 rounded-full" style="background: transparent; border: none; cursor: pointer;">
+                        <div id="theme-icon-container">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-dim);"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                        </div>
+                    </button>
+                    <button onclick="toggleEditor()" class="p-2 rounded-full" style="background: transparent; border: none; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-dim);"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                </div>
+
+                <div class="text-right">
+                    <div id="current-time-display" class="text-3xl font-mono text-sky-500 font-bold">12:00</div>
+                    <div id="current-shift-label" class="text-xs uppercase" style="color: var(--text-dim);">Day Shift</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <label class="block text-xs font-semibold mb-2 uppercase" style="color: var(--text-dim);">Simulate System Time</label>
+            <input type="range" id="timeSlider" min="0" max="23" value="12" class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="background: rgba(51, 65, 85, 0.5);">
+            <div class="flex justify-between text-xs mt-1 px-1" style="color: var(--text-dim);">
+                <span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span><span>16:00</span><span>20:00</span><span>23:59</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex overflow-hidden">
+        <!-- Left: Contact List -->
+        <div id="contactList" class="flex-1 overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar">
+        </div>
+
+        <!-- Right: Scripting Payload Panel -->
+        <div class="w-96 border-l p-6 flex flex-col gap-4" style="background: var(--bg-header); border-color: var(--border);">
+            <div class="flex items-center gap-2 mb-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <h2 id="target-panel-title" class="text-sm font-bold uppercase tracking-wider" style="color: var(--text-dim);">Active Routing Target</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="p-4 rounded-lg border" style="background: rgba(16, 185, 129, 0.05); border-color: rgba(16, 185, 129, 0.2);">
+                    <p class="text-xs text-emerald-500 uppercase font-bold mb-2">Status: Ready for Alarms</p>
+                    <div class="flex items-center gap-3">
+                        <div id="target-icon" class="p-2 rounded-full" style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div>
+                            <p id="target-name" class="text-sm font-bold" style="color: var(--text-main);">-</p>
+                            <p id="target-email" class="text-xs" style="color: rgba(16, 185, 129, 0.8);">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs uppercase font-bold" style="color: var(--text-dim);">SendEmail() Recipient</label>
+                    <div id="payload-to" class="code-block p-3 rounded text-sky-500 text-sm mt-1">-</div>
+                </div>
+                <div>
+                    <label class="text-xs uppercase font-bold" style="color: var(--text-dim);">Class Filter</label>
+                    <div id="payload-filter" class="code-block p-3 rounded text-amber-500 text-sm mt-1">-</div>
+                </div>
+            </div>
+
+            <div class="mt-auto p-4 rounded-lg border" style="background: var(--bg-panel); border-color: var(--border);">
+                <p class="text-xs leading-relaxed" style="color: var(--text-dim);">
+                    <span class="text-emerald-500 font-bold">Logic:</span> System function <code class="text-sky-500">SendEmail()</code> will use the recipient identified above based on current shifts.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Editor Modal -->
+    <div id="tsv-editor-overlay" class="fixed inset-0 flex items-center justify-center p-8" style="background: rgba(2, 6, 23, 0.9);">
+        <div class="glass-panel w-full max-w-4xl h-full flex flex-col rounded-2xl overflow-hidden" style="max-height: 85vh;">
+            <div class="p-4 border-b flex justify-between items-center" style="background: var(--bg-header); border-color: var(--border);">
+                <div>
+                    <h2 class="text-xl font-bold">System Configuration</h2>
+                    <p class="text-xs" style="color: var(--text-dim);">Manage shifts and theme behavior</p>
+                </div>
+                <button onclick="toggleEditor()" style="color: var(--text-dim); background: transparent; border: none; cursor: pointer;" class="hover:text-white">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="flex-1 p-4 overflow-y-auto custom-scrollbar flex flex-col gap-6">
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-sky-500">Theme Preferences</h3>
+                    <div class="flex gap-4">
+                        <div class="flex-1 p-4 rounded-lg border" style="background: var(--bg-main); border-color: var(--border);">
+                            <label class="text-xs font-bold block mb-2">Theme Control Mode</label>
+                            <div class="flex gap-2">
+                                <button id="theme-mode-auto" onclick="setThemeMode('auto')" class="flex-1 py-2 text-xs font-bold rounded border">AUTO</button>
+                                <button id="theme-mode-manual" onclick="setThemeMode('manual')" class="flex-1 py-2 text-xs font-bold rounded border">MANUAL</button>
+                            </div>
+                        </div>
+                        <div id="manual-theme-selector" class="flex-1 p-4 rounded-lg border" style="background: var(--bg-main); border-color: var(--border);">
+                            <label class="text-xs font-bold block mb-2">Manual Theme</label>
+                            <div class="flex gap-2">
+                                <button id="theme-select-light" onclick="setManualTheme('light')" class="flex-1 py-2 text-xs font-bold rounded border">LIGHT</button>
+                                <button id="theme-select-dark" onclick="setManualTheme('dark')" class="flex-1 py-2 text-xs font-bold rounded border">DARK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col gap-2" style="min-height: 300px;">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-sky-500">Contact Data (TSV)</h3>
+                    <textarea id="tsvInput" class="flex-1 w-full text-sky-400 p-4 rounded border custom-scrollbar" style="background: #020617; border-color: #334155;" spellcheck="false"></textarea>
+                </div>
+            </div>
+
+            <div class="p-4 flex justify-end gap-3 border-t" style="background: var(--bg-header); border-color: var(--border);">
+                <button onclick="toggleEditor()" class="px-6 py-2 text-xs font-bold border rounded" style="color: var(--text-dim); border-color: var(--border); background: transparent;">CANCEL</button>
+                <button id="confirm-btn" onclick="applySettings()" class="px-6 py-2 bg-sky-600 text-white rounded text-xs font-bold">APPLY CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let contacts = [];
+        let routingMode = 'auto'; 
+        let themeControlMode = 'auto';
+        let manualTheme = 'dark';
+        let manualEmail = "";
+        let manualClasses = "";
+        let currentActiveEmail = "";
+        let currentActiveName = "";
+        let currentActiveClasses = "";
+
+        const timeSlider = document.getElementById('timeSlider');
+        const timeDisplay = document.getElementById('current-time-display');
+        const shiftLabel = document.getElementById('current-shift-label');
+        const contactList = document.getElementById('contactList');
+        const tsvOverlay = document.getElementById('tsv-editor-overlay');
+        const tsvInput = document.getElementById('tsvInput');
+        const payloadTo = document.getElementById('payload-to');
+        const payloadFilter = document.getElementById('payload-filter');
+        const targetName = document.getElementById('target-name');
+        const targetEmail = document.getElementById('target-email');
+
+        function intToRgba(num) {
+            num >>>= 0;
+            const b = num & 0xFF;
+            const g = (num & 0xFF00) >>> 8;
+            const r = (num & 0xFF0000) >>> 16;
+            const a = ((num & 0xFF000000) >>> 24) / 255;
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+        }
+
+        function getIcon(type) {
+            if (type === 'moon') return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+            if (type === 'sun') return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+            return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9V2"/><path d="m9 11 3-3 3 3"/><path d="M22 22H2"/><path d="m8 22 4-10 4 10"/></svg>';
+        }
+
+        function setMode(mode) {
+            routingMode = mode;
+            WebCC.Properties.autoSelectByShift = (mode === 'auto');
+            document.getElementById('mode-auto').style.backgroundColor = mode === 'auto' ? '#0284c7' : 'transparent';
+            document.getElementById('mode-auto').style.color = mode === 'auto' ? 'white' : 'var(--text-dim)';
+            document.getElementById('mode-manual').style.backgroundColor = mode === 'manual' ? '#0284c7' : 'transparent';
+            document.getElementById('mode-manual').style.color = mode === 'manual' ? 'white' : 'var(--text-dim)';
+            updateUI();
+        }
+
+        function setThemeMode(mode) {
+            themeControlMode = mode;
+            WebCC.Properties.themeControlMode = mode;
+            updateSettingsUI();
+            updateUI();
+        }
+
+        function setManualTheme(theme) {
+            themeControlMode = 'manual';
+            manualTheme = theme;
+            WebCC.Properties.themeControlMode = 'manual';
+            WebCC.Properties.manualTheme = theme;
+            updateSettingsUI();
+            updateUI();
+        }
+
+        function toggleThemeManual() {
+            themeControlMode = 'manual';
+            manualTheme = manualTheme === 'dark' ? 'light' : 'dark';
+            WebCC.Properties.themeControlMode = 'manual';
+            WebCC.Properties.manualTheme = manualTheme;
+            WebCC.Events.fire('ThemeChanged', manualTheme);
+            updateUI();
+        }
+
+        function updateSettingsUI() {
+            const btnAuto = document.getElementById('theme-mode-auto');
+            const btnManual = document.getElementById('theme-mode-manual');
+            const btnLight = document.getElementById('theme-select-light');
+            const btnDark = document.getElementById('theme-select-dark');
+            const manualArea = document.getElementById('manual-theme-selector');
+
+            const activeStyle = { background: '#0284c7', color: 'white', borderColor: '#0284c7' };
+            const inactiveStyle = { background: 'transparent', color: '#64748b', borderColor: '#334155' };
+
+            Object.assign(btnAuto.style, themeControlMode === 'auto' ? activeStyle : inactiveStyle);
+            Object.assign(btnManual.style, themeControlMode === 'manual' ? activeStyle : inactiveStyle);
+            Object.assign(btnLight.style, manualTheme === 'light' ? activeStyle : inactiveStyle);
+            Object.assign(btnDark.style, manualTheme === 'dark' ? activeStyle : inactiveStyle);
+            
+            manualArea.style.opacity = themeControlMode === 'manual' ? '1' : '0.4';
+            manualArea.style.pointerEvents = themeControlMode === 'manual' ? 'auto' : 'none';
+        }
+
+        function toggleEditor() {
+            const isVisible = tsvOverlay.style.display === 'flex';
+            if (!isVisible) {
+                const tsvData = contacts.map(c => 
+                    `${c.name}\t${c.email}\t${c.role}\t${c.shiftStart}\t${c.shiftEnd}\t${c.iconType}\t${c.alarmClasses}`
+                ).join('\n');
+                tsvInput.value = tsvData;
+                updateSettingsUI();
+                tsvOverlay.style.display = 'flex';
+            } else {
+                tsvOverlay.style.display = 'none';
+            }
+        }
+
+        function applySettings() {
+            const raw = tsvInput.value.trim();
+            if (raw) {
+                const parsed = Papa.parse(raw, { delimiter: "\t", skipEmptyLines: true });
+                const newContacts = parsed.data.map(row => ({
+                    name: row[0] || "Unknown",
+                    email: row[1] || "N/A",
+                    role: row[2] || "Staff",
+                    shiftStart: parseInt(row[3]) || 0,
+                    shiftEnd: parseInt(row[4]) || 0,
+                    iconType: row[5] || "sunset",
+                    alarmClasses: row[6] || ""
+                }));
+                if (newContacts.length > 0) {
+                    contacts = newContacts;
+                    WebCC.Properties.contacts = newContacts;
+                }
+            }
+            WebCC.Events.fire('Confirmed', currentActiveEmail);
+            toggleEditor();
+            updateUI();
+        }
+
+        function renderContacts(hour) {
+            contactList.innerHTML = '';
+            contacts.forEach(contact => {
+                let isShiftActive = false;
+                if (contact.shiftStart > contact.shiftEnd) {
+                    isShiftActive = hour >= contact.shiftStart || hour < contact.shiftEnd;
+                } else {
+                    isShiftActive = hour >= contact.shiftStart && hour < contact.shiftEnd;
+                }
+
+                if (isShiftActive) {
+                    currentActiveEmail = contact.email;
+                    currentActiveName = contact.name;
+                    currentActiveClasses = contact.alarmClasses;
+                }
+
+                const isSelected = (routingMode === 'manual' && manualEmail === contact.email) || (routingMode === 'auto' && isShiftActive);
+
+                const card = document.createElement('div');
+                card.className = `glass-panel p-5 rounded-xl ${isShiftActive ? 'shift-active' : 'shift-inactive'} ${isSelected ? 'manual-selected' : ''}`;
+                card.style.cursor = 'pointer';
+                
+                const classesArray = contact.alarmClasses ? contact.alarmClasses.split(',').map(s => s.trim()) : [];
+                const badges = classesArray.map(cls => {
+                    const colorClass = cls.toLowerCase().includes('critical') ? 'badge-critical' : 
+                                     cls.toLowerCase().includes('warning') ? 'badge-warning' : 'badge-info';
+                    return `<span class="text-xs px-2 py-0.5 rounded-full font-bold uppercase ${colorClass}">${cls}</span>`;
+                }).join(' ');
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 rounded-lg ${isShiftActive ? 'bg-emerald-500' : 'bg-slate-700'}" style="background: ${isShiftActive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(51, 65, 85, 0.2)'}; color: ${isShiftActive ? '#10b981' : '#64748b'};">
+                            ${getIcon(contact.iconType)}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-lg leading-tight" style="color: var(--text-main);">${contact.name}</h3>
+                                ${isSelected ? '<div class="pulse-dot"></div>' : ''}
+                            </div>
+                            <p class="text-xs font-medium uppercase" style="color: var(--text-dim);">${contact.role}</p>
+                            <p class="text-sm mt-1" style="color: #0ea5e9;">${contact.email}</p>
+                            <div class="flex flex-wrap gap-1 mt-2">${badges}</div>
+                        </div>
+                        <div class="text-right flex flex-col items-end gap-2">
+                            <span class="text-xs px-2 py-1 rounded border font-mono" style="background: var(--bg-main); border-color: var(--border); color: var(--text-dim);">
+                                ${contact.shiftStart.toString().padStart(2, '0')}:00 - ${contact.shiftEnd.toString().padStart(2, '0')}:00
+                            </span>
+                            ${isShiftActive ? '<span class="text-xs font-bold text-emerald-500 uppercase">Current Shift</span>' : ''}
+                        </div>
+                    </div>
+                `;
+
+                card.onclick = () => {
+                    routingMode = 'manual';
+                    manualEmail = contact.email;
+                    manualClasses = contact.alarmClasses;
+                    WebCC.Properties.selectedEmail = contact.email;
+                    WebCC.Properties.autoSelectByShift = false;
+                    WebCC.Events.fire('SelectionChanged', contact.email);
+                    updateUI();
+                };
+
+                contactList.appendChild(card);
+            });
+            updatePayload();
+        }
+
+        function updatePayload() {
+            const finalEmail = routingMode === 'auto' ? currentActiveEmail : manualEmail;
+            const finalClasses = routingMode === 'auto' ? currentActiveClasses : (manualClasses || "");
+            const found = contacts.find(c => c.email === manualEmail);
+            const finalName = routingMode === 'auto' ? currentActiveName : (found ? found.name : "-");
+
+            payloadTo.textContent = finalEmail || "(No Target)";
+            payloadFilter.textContent = finalClasses || "(No Filter)";
+            targetName.textContent = finalName;
+            targetEmail.textContent = finalEmail;
+        }
+
+        function updateUI() {
+            const hour = parseInt(timeSlider.value);
+            timeDisplay.textContent = `${hour.toString().padStart(2, '0')}:00`;
+            
+            if (hour >= 6 && hour < 14) shiftLabel.textContent = "Morning Shift";
+            else if (hour >= 14 && hour < 22) shiftLabel.textContent = "Afternoon Shift";
+            else shiftLabel.textContent = "Night Shift";
+
+            let targetTheme = manualTheme;
+            if (themeControlMode === 'auto') {
+                targetTheme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+            }
+            
+            if (targetTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('theme-icon-container').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+            } else {
+                document.body.classList.remove('light-theme');
+                document.getElementById('theme-icon-container').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+            }
+
+            renderContacts(hour);
+        }
+
+        function refreshAll() {
+            const props = WebCC.Properties;
+            document.body.style.backgroundColor = intToRgba(props.backgroundColor);
+            document.getElementById('main-title').textContent = props.title;
+            document.getElementById('main-subtitle').textContent = props.subtitle;
+            document.getElementById('routing-mode-label').textContent = props.routingModeLabel;
+            document.getElementById('target-panel-title').textContent = props.targetPanelTitle;
+            document.getElementById('confirm-btn').textContent = props.confirmButtonText;
+            
+            contacts = props.contacts || [];
+            timeSlider.value = props.systemHour;
+            routingMode = props.autoSelectByShift ? 'auto' : 'manual';
+            themeControlMode = props.themeControlMode;
+            manualTheme = props.manualTheme;
+            manualEmail = props.selectedEmail;
+
+            setMode(routingMode);
+            updateUI();
+        }
+
+        WebCC.start(
+            function(result) {
+                if (result) {
+                    refreshAll();
+                    WebCC.onPropertyChanged.subscribe(function() { refreshAll(); });
+                    
+                    // Enhanced subscription for array items
+                    if (WebCC.Properties.contacts) {
+                        WebCC.Properties.contacts.subscribe(function() { refreshAll(); });
+                        for (var i = 0; i < WebCC.Properties.contacts.length; i++) {
+                            WebCC.Properties.contacts[i].subscribe(function() { refreshAll(); });
+                        }
+                    }
+                }
+            },
+            {
+                methods: {
+                    setSystemHour: function(hour) { timeSlider.value = hour; updateUI(); },
+                    selectEmail: function(email) { manualEmail = email; routingMode = 'manual'; updateUI(); },
+                    setThemeMode: function(mode) { setThemeMode(mode); }
+                },
+                events: ['SelectionChanged', 'Confirmed', 'ThemeChanged'],
+                properties: {
+                    backgroundColor: 4278853402,
+                    title: "Alarm Notification Router",
+                    subtitle: "Live Shift-Based Routing Active",
+                    routingModeLabel: "Routing Mode",
+                    targetPanelTitle: "Active Routing Target",
+                    confirmButtonText: "APPLY CHANGES",
+                    systemHour: 12,
+                    autoSelectByShift: true,
+                    themeControlMode: "auto",
+                    manualTheme: "dark",
+                    selectedEmail: "",
+                    contacts: [
+                        { name: "Alex Rivera", email: "a.rivera@industrial.com", role: "Night Supervisor", shiftStart: 22, shiftEnd: 6, iconType: "moon", alarmClasses: "Critical, Warning" },
+                        { name: "Sarah Jenkins", email: "s.jenkins@industrial.com", role: "Morning Lead", shiftStart: 6, shiftEnd: 14, iconType: "sun", alarmClasses: "Critical, Warning, Info" },
+                        { name: "Mark Thompson", email: "m.thompson@industrial.com", role: "Afternoon Lead", shiftStart: 14, shiftEnd: 22, iconType: "sunset", alarmClasses: "Critical" }
+                    ]
+                }
+            },
+            ['HMI'],
+            10000
+        );
+
+        timeSlider.oninput = () => {
+            WebCC.Properties.systemHour = parseInt(timeSlider.value);
+            updateUI();
+        };
+
+        updateUI();
+    </script>
+</body>
+</html>

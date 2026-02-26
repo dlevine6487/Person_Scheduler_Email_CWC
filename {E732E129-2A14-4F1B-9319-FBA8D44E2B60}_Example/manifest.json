@@ -1,0 +1,149 @@
+{
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "NotificationRouter",
+      "version": "1.0.0",
+      "displayname": "Notification Router",
+      "icon": "./assets/icon.ico",
+      "type": "guid://E732E129-2A14-4F1B-9319-FBA8D44E2B60",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "defaultwidth": 1000,
+          "defaultheight": 600,
+          "unit": "px"
+        }
+      },
+      "extensions": {
+        "HMI": {
+          "mandatory": false,
+          "version": "~1.0.0"
+        }
+      }
+    },
+    "metadata": {
+      "author": "HMIx CWC AI Creator",
+      "description": "Alarm Notification Router with shift-based logic",
+      "keywords": ["alarm", "routing", "shift", "notification"],
+      "generator": "https://ai.hmix.tech"
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "setSystemHour": {
+            "parameters": {
+              "hour": { "type": "number" }
+            },
+            "description": "Programmatically update the hour to sync with WinCC Unified system time"
+          },
+          "selectEmail": {
+            "parameters": {
+              "email": { "type": "string" }
+            },
+            "description": "Programmatically select a contact by their email address"
+          },
+          "setThemeMode": {
+            "parameters": {
+              "mode": { "type": "string" }
+            },
+            "description": "Set the theme control logic to 'auto' or 'manual'"
+          }
+        },
+        "events": {
+          "SelectionChanged": {
+            "arguments": {
+              "email": { "type": "string" }
+            },
+            "description": "Fired when the active recipient changes due to shift time or manual selection"
+          },
+          "Confirmed": {
+            "arguments": {
+              "email": { "type": "string" }
+            },
+            "description": "Fired when the user explicitly confirms a manual selection"
+          },
+          "ThemeChanged": {
+            "arguments": {
+              "theme": { "type": "string" }
+            },
+            "description": "Fired when the visual theme switches between light and dark"
+          }
+        },
+        "properties": {
+          "backgroundColor": {
+            "$ref": "#/control/types/Color",
+            "default": 4278853402
+          },
+          "title": {
+            "type": "string",
+            "default": "Alarm Notification Router"
+          },
+          "subtitle": {
+            "type": "string",
+            "default": "Live Shift-Based Routing Active"
+          },
+          "routingModeLabel": {
+            "type": "string",
+            "default": "Routing Mode"
+          },
+          "targetPanelTitle": {
+            "type": "string",
+            "default": "Active Routing Target"
+          },
+          "confirmButtonText": {
+            "type": "string",
+            "default": "APPLY CHANGES"
+          },
+          "systemHour": {
+            "type": "number",
+            "default": 12
+          },
+          "autoSelectByShift": {
+            "type": "boolean",
+            "default": true
+          },
+          "themeControlMode": {
+            "type": "string",
+            "default": "auto"
+          },
+          "manualTheme": {
+            "type": "string",
+            "default": "dark"
+          },
+          "selectedEmail": {
+            "type": "string",
+            "default": ""
+          },
+          "contacts": {
+            "$ref": "#/control/types/ContactArray"
+          }
+        }
+      }
+    },
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "default": "Alex Rivera" },
+          "email": { "type": "string", "default": "a.rivera@industrial.com" },
+          "role": { "type": "string", "default": "Night Supervisor" },
+          "shiftStart": { "type": "number", "default": 22 },
+          "shiftEnd": { "type": "number", "default": 6 },
+          "iconType": { "type": "string", "default": "moon" },
+          "alarmClasses": { "type": "string", "default": "Critical, Warning" }
+        }
+      },
+      "ContactArray": {
+        "type": "array",
+        "items": { "$ref": "#/control/types/Contact" }
+      }
+    }
+  }
+}

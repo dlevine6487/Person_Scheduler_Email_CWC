@@ -1,56 +1,88 @@
 {
-    "name": "TargetedEmailSelector",
-    "version": "1.0.0",
-    "author": "CWC Expert",
-    "description": "Custom control for selecting a target person and retrieving their email address.",
-    "entryPoint": "index.html",
-    "properties": [
-        {
-            "name": "TargetName",
-            "type": "String",
-            "defaultValue": "",
-            "description": "Selected person's name"
-        },
-        {
-            "name": "SelectedEmail",
-            "type": "String",
-            "defaultValue": "",
-            "description": "Selected person's email address"
-        },
-        {
-            "name": "tsvSource",
-            "type": "String",
-            "defaultValue": "",
-            "description": "Tab-Separated Values source for the contact list."
-        },
-        {
-            "name": "backgroundColor",
-            "type": "Color",
-            "defaultValue": "0xFF0A0F1D",
-            "description": "Background color of the control"
-        },
-         {
-            "name": "systemHour",
-            "type": "Int",
-            "defaultValue": 12,
-            "description": "Current hour for shift logic (0-23)"
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "TargetedEmailSelector",
+      "version": "1.0.0",
+      "displayname": "Targeted Email Selector",
+      "icon": "./assets/icon.ico",
+      "type": "guid://8716E98C-3113-4633-9694-555353592631",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "defaultwidth": 1000,
+          "defaultheight": 600,
+          "unit": "px"
         }
-    ],
-    "events": [
-        {
-            "name": "SelectionChanged",
-            "description": "Fires when a new target is selected"
+      },
+      "extensions": {
+        "HMI": {
+          "mandatory": false,
+          "version": "~1.0.0"
         }
-    ],
-    "methods": [
-        {
-            "name": "syncFromTSV",
+      }
+    },
+    "metadata": {
+      "author": "CWC Expert",
+      "description": "Custom control for selecting a target person and retrieving their email address.",
+      "keywords": ["email", "selector", "target", "contacts"],
+      "generator": "https://ai.hmix.tech"
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "syncFromTSV": {
+            "parameters": {
+              "tsv": { "type": "string" }
+            },
             "description": "Loads TSV string content into the control from HMI storage"
-        },
-        {
-            "name": "setSystemHour",
+          },
+          "setSystemHour": {
+            "parameters": {
+              "hour": { "type": "number" }
+            },
             "description": "Updates the internal logic clock from HMI system time"
+          }
+        },
+        "events": {
+          "SelectionChanged": {
+            "arguments": {
+              "email": { "type": "string" }
+            },
+            "description": "Fires when a new target is selected"
+          }
+        },
+        "properties": {
+          "targetName": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "selectedEmail": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "tsvSource": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "backgroundColor": {
+            "$ref": "#/control/types/Color",
+            "defaultValue": 4278853402
+          },
+          "systemHour": {
+            "type": "number",
+            "defaultValue": 12
+          }
         }
-    ],
-    "type": "guid://8716E98C-3113-4633-9694-555353592631"
+      }
+    },
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      }
+    }
+  }
 }

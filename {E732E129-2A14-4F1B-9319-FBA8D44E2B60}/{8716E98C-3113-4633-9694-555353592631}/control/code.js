@@ -125,11 +125,11 @@ function updateUI() {
     document.getElementById('target-icon').innerHTML = target ? icons[target.iconType] : icons.user;
 
     if (window.WebCC && WebCC.Properties) {
-        if (WebCC.Properties.SelectedEmail !== email) {
-            WebCC.Properties.SelectedEmail = email;
+        if (WebCC.Properties.selectedEmail !== email) {
+            WebCC.Properties.selectedEmail = email;
         }
-        if (WebCC.Properties.TargetName !== name) {
-            WebCC.Properties.TargetName = name;
+        if (WebCC.Properties.targetName !== name) {
+            WebCC.Properties.targetName = name;
         }
     }
 
@@ -181,8 +181,8 @@ window.onload = function() {
                 },
                 events: ['SelectionChanged'],
                 properties: {
-                    TargetName: "",
-                    SelectedEmail: "",
+                    targetName: "",
+                    selectedEmail: "",
                     tsvSource: "",
                     backgroundColor: 0xFF0A0F1D,
                     systemHour: 12

@@ -1,0 +1,56 @@
+{
+    "name": "TargetedEmailSelector",
+    "version": "1.0.0",
+    "author": "CWC Expert",
+    "description": "Custom control for selecting a target person and retrieving their email address.",
+    "entryPoint": "index.html",
+    "properties": [
+        {
+            "name": "TargetName",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Selected person's name"
+        },
+        {
+            "name": "SelectedEmail",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Selected person's email address"
+        },
+        {
+            "name": "tsvSource",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Tab-Separated Values source for the contact list."
+        },
+        {
+            "name": "backgroundColor",
+            "type": "Color",
+            "defaultValue": "0xFF0A0F1D",
+            "description": "Background color of the control"
+        },
+         {
+            "name": "systemHour",
+            "type": "Int",
+            "defaultValue": 12,
+            "description": "Current hour for shift logic (0-23)"
+        }
+    ],
+    "events": [
+        {
+            "name": "SelectionChanged",
+            "description": "Fires when a new target is selected"
+        }
+    ],
+    "methods": [
+        {
+            "name": "syncFromTSV",
+            "description": "Loads TSV string content into the control from HMI storage"
+        },
+        {
+            "name": "setSystemHour",
+            "description": "Updates the internal logic clock from HMI system time"
+        }
+    ],
+    "type": "guid://8716E98C-3113-4633-9694-555353592631"
+}

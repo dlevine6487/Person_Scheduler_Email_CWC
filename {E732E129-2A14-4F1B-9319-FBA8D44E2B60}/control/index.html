@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Notification Router Premium</title>
+    <!-- Dependencies for TIA Portal Runtime -->
+    <script src="libs/papaparse.min.js"></script>
+    <script src="webcc.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #0a0f1d;
+            --bg-panel: rgba(15, 23, 42, 0.8);
+            --bg-header: rgba(7, 10, 20, 0.9);
+            --text-main: #f8fafc;
+            --text-dim: #64748b;
+            --border: rgba(255, 255, 255, 0.08);
+            --accent-sky: #38bdf8;
+            --accent-emerald: #10b981;
+            --card-inactive: rgba(30, 41, 59, 0.4);
+            --code-bg: #020617;
+        }
+
+        .light-theme {
+            --bg-main: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-header: #e2e8f0;
+            --text-main: #0f172a;
+            --text-dim: #64748b;
+            --border: rgba(0, 0, 0, 0.1);
+            --card-inactive: #f8fafc;
+            --accent-sky: #0284c7;
+            --accent-emerald: #059669;
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0; padding: 0; overflow: hidden;
+            width: 100vw; height: 100vh;
+            display: flex; flex-direction: column;
+            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Essential Layout Helpers */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .flex-none { flex: none; }
+        .flex-1 { flex: 1 1 0%; min-height: 0; }
+        .items-center { align-items: center; }
+        .items-end { align-items: flex-end; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-5 { gap: 1.25rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-10 { gap: 2.5rem; }
+        .p-1 { padding: 0.25rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .w-12 { width: 3rem; } .h-12 { height: 3rem; }
+        .w-14 { width: 3.5rem; } .h-14 { height: 3.5rem; }
+        .w-96 { width: 24rem; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .rounded-2xl { border-radius: 1rem; }
+        .rounded-3xl { border-radius: 1.5rem; }
+        .border { border: 1px solid currentColor; }
+        .border-b { border-bottom: 1px solid currentColor; }
+        .border-l { border-left: 1px solid currentColor; }
+        .border-t { border-top: 1px solid currentColor; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .font-bold { font-weight: 700; }
+        .font-black { font-weight: 900; }
+        .font-mono { font-family: ui-monospace, monospace; }
+        .uppercase { text-transform: uppercase; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .opacity-40 { opacity: 0.4; }
+        .opacity-60 { opacity: 0.6; }
+        .hidden { display: none; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .blur-3xl { filter: blur(64px); }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-y-auto { overflow-y: auto; }
+
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        .premium-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .premium-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .shift-active {
+            border-left: 4px solid var(--accent-emerald) !important;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-panel) 100%);
+        }
+
+        .manual-selected {
+            border: 2px solid var(--accent-sky) !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+            opacity: 1 !important;
+        }
+
+        .mode-btn {
+            background: transparent; border: none; color: var(--text-dim);
+            transition: all 0.2s ease; cursor: pointer;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-sky); color: white;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--text-dim); border-radius: 10px; }
+
+        #tsv-editor-overlay {
+            display: none; position: fixed; inset: 0; z-index: 100;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+        }
+
+        .settings-modal {
+            background: #ffffff !important; color: #1e293b !important;
+            border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .status-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="flex-none h-24 px-8 flex items-center justify-between border-b" style="background: var(--bg-header); border-color: var(--border);">
+        <div class="flex items-center gap-6">
+            <div class="p-3 rounded-2xl bg-sky-500/10 border" style="border-color: rgba(56, 189, 248, 0.2);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-sky)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <h1 id="main-title" class="text-xl font-black tracking-tight uppercase">Alarm Router</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <div class="status-dot"></div>
+                    <span id="main-subtitle" class="text-[10px] uppercase font-bold tracking-widest" style="color: var(--accent-emerald);">System Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-10">
+            <div class="flex flex-col items-center">
+                <span class="text-[9px] uppercase font-black mb-2 tracking-widest opacity-40">Selection Mode</span>
+                <div class="flex p-1 rounded-xl border" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05);">
+                    <button id="mode-auto" onclick="setMode('auto')" class="mode-btn px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all">AUTO</button>
+                    <button id="mode-manual" onclick="setMode('manual')" class="mode-btn px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all">MANUAL</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <div class="flex items-center gap-3">
+                    <div id="current-shift-indicator"></div>
+                    <span id="current-time-display" class="text-2xl font-mono font-bold tracking-tighter" style="color: var(--accent-sky);">00:00:00</span>
+                </div>
+                <span id="current-shift-label" class="text-[10px] uppercase font-bold tracking-widest opacity-60">Shift Unknown</span>
+            </div>
+
+            <div class="flex gap-2 border-l pl-8" style="border-color: var(--border);">
+                <button onclick="toggleThemeManual()" class="p-3 rounded-xl hover:bg-white/5 transition-colors" style="background: transparent; border: none; cursor: pointer;">
+                    <div id="theme-icon-container"></div>
+                </button>
+                <button onclick="toggleEditor()" class="p-3 rounded-xl hover:bg-white/5 transition-colors" style="background: transparent; border: none; cursor: pointer;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex overflow-hidden">
+        <div id="contactList" class="flex-1 overflow-y-auto p-8 space-y-4 custom-scrollbar"></div>
+
+        <div class="w-96 border-l p-8 flex flex-col gap-8 flex-none" style="background: var(--bg-header); border-color: var(--border);">
+            <div>
+                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] mb-6 opacity-40">Active Interface Target</h2>
+                <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                    <div class="relative flex items-center gap-4">
+                        <div id="target-icon" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500"></div>
+                        <div>
+                            <p id="target-name" class="text-lg font-bold">-</p>
+                            <p id="target-email" class="text-xs font-mono opacity-60">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest opacity-40">Email Recipient</label>
+                    <div id="payload-to" class="p-4 rounded-xl border font-mono text-xs mt-2" style="background: rgba(0,0,0,0.4); color: var(--accent-sky); border-color: rgba(255,255,255,0.05);">-</div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest opacity-40">Persistence Status</label>
+                    <div class="text-[11px] leading-relaxed opacity-60 mt-2">
+                        Retentive synchronization active via <code>tsvSource</code> property. Logic persists across screen transitions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDITOR MODAL -->
+    <div id="tsv-editor-overlay">
+        <div class="settings-modal w-full max-w-4xl h-full max-h-[800px] flex flex-col overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center" style="border-color: #e2e8f0;">
+                <h2 class="text-2xl font-black text-slate-900">Shift Configuration</h2>
+                <button onclick="toggleEditor()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400" style="background:transparent; border:none; cursor:pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="flex-1 p-8 flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">TSV Content</span>
+                    <div class="flex gap-2">
+                        <button onclick="exportTSV()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border-0 cursor-pointer">EXPORT</button>
+                        <button onclick="document.getElementById('importFile').click()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border-0 cursor-pointer">IMPORT</button>
+                        <input type="file" id="importFile" class="hidden" accept=".tsv,.txt" onchange="importTSV(event)">
+                    </div>
+                </div>
+                <textarea id="tsvInput" class="flex-1 w-full p-6 rounded-2xl border text-sm custom-scrollbar" style="background:#f8fafc; color:#0f172a; resize:none;" spellcheck="false"></textarea>
+            </div>
+            <div class="p-8 bg-slate-50 border-t flex justify-end gap-4 rounded-b-[1.5rem]" style="border-color: #e2e8f0;">
+                <button onclick="toggleEditor()" class="px-8 py-3 text-sm font-bold text-slate-500 hover:text-slate-900 border-0 bg-transparent cursor-pointer">CANCEL</button>
+                <button onclick="applySettings()" class="px-10 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-bold border-0 cursor-pointer">APPLY CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let contacts = [];
+        let routingMode = 'auto';
+        let themeControlMode = 'auto';
+        let manualTheme = 'dark';
+        let manualEmail = "";
+        let currentRawTSV = "";
+        let lastFiredEmail = "";
+
+        const icons = {
+            moon: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+            sun: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`,
+            sunset: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"/><path d="M12 9V2"/><path d="m9 11 3-3 3 3"/><path d="M22 22H2"/><path d="m8 22 4-10 4 10"/></svg>`,
+            user: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+        };
+
+        function parseTSV(tsv) {
+            if (!tsv || typeof Papa === 'undefined') return [];
+            try {
+                const parsed = Papa.parse(tsv.trim(), { delimiter: "\t", skipEmptyLines: true });
+                return parsed.data.map(row => ({
+                    name: row[0] || "Unknown",
+                    email: row[1] || "",
+                    role: row[2] || "Staff",
+                    shiftStart: parseInt(row[3]) || 0,
+                    shiftEnd: parseInt(row[4]) || 0,
+                    iconType: row[5] || "user"
+                }));
+            } catch(e) { return []; }
+        }
+
+        function convertWinCCToCssColor(winccColor) {
+            var c = winccColor >>> 0;
+            var b = c & 0xFF; var g = (c & 0xFF00) >>> 8; var r = (c & 0xFF0000) >>> 16; var a = ((c & 0xFF000000) >>> 24) / 255;
+            return 'rgba(' + [r, g, b, a].join(',') + ')';
+        }
+
+        function setMode(mode) {
+            routingMode = mode;
+            if (window.WebCC) WebCC.Properties.autoSelectByShift = (mode === 'auto');
+            updateUI();
+        }
+
+        function toggleThemeManual() {
+            themeControlMode = 'manual';
+            manualTheme = manualTheme === 'dark' ? 'light' : 'dark';
+            if (window.WebCC) {
+                WebCC.Properties.themeControlMode = 'manual';
+                WebCC.Properties.manualTheme = manualTheme;
+            }
+            updateUI();
+        }
+
+        function toggleEditor() {
+            const modal = document.getElementById('tsv-editor-overlay');
+            if (modal.style.display === 'flex') modal.style.display = 'none';
+            else {
+                document.getElementById('tsvInput').value = currentRawTSV;
+                modal.style.display = 'flex';
+            }
+        }
+
+        function applySettings() {
+            const tsv = document.getElementById('tsvInput').value.trim();
+            currentRawTSV = tsv;
+            contacts = parseTSV(tsv);
+            if (window.WebCC) {
+                WebCC.Properties.tsvSource = tsv;
+                WebCC.Events.fire('Confirmed', tsv);
+            }
+            toggleEditor();
+            updateUI();
+        }
+
+        function exportTSV() {
+            const blob = new Blob([currentRawTSV], { type: 'text/tab-separated-values' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'shifts.tsv'; a.click();
+        }
+
+        function importTSV(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => { document.getElementById('tsvInput').value = ev.target.result; applySettings(); };
+            reader.readAsText(file);
+        }
+
+        function updateUI() {
+            const now = new Date();
+            const hour = (window.WebCC && WebCC.Properties.systemHour !== undefined) ? WebCC.Properties.systemHour : now.getHours();
+            
+            document.getElementById('current-time-display').textContent = now.toLocaleTimeString();
+            
+            document.getElementById('mode-auto').classList.toggle('active', routingMode === 'auto');
+            document.getElementById('mode-manual').classList.toggle('active', routingMode === 'manual');
+
+            let activeTheme = manualTheme;
+            if (themeControlMode === 'auto') activeTheme = (hour >= 7 && hour < 19) ? 'light' : 'dark';
+            document.body.classList.toggle('light-theme', activeTheme === 'light');
+            document.getElementById('theme-icon-container').innerHTML = activeTheme === 'light' ? icons.sun : icons.moon;
+
+            const list = document.getElementById('contactList');
+            list.innerHTML = '';
+            let autoActive = null;
+
+            contacts.forEach(c => {
+                let isActive = false;
+                if (c.shiftStart > c.shiftEnd) isActive = (hour >= c.shiftStart || hour < c.shiftEnd);
+                else isActive = (hour >= c.shiftStart && hour < c.shiftEnd);
+                if (isActive) autoActive = c;
+
+                const isSelected = (routingMode === 'auto' && isActive) || (routingMode === 'manual' && manualEmail === c.email);
+                const card = document.createElement('div');
+                card.className = `premium-card glass-panel p-6 rounded-2xl cursor-pointer ${isActive ? 'shift-active' : 'opacity-40'} ${isSelected ? 'manual-selected' : ''}`;
+                card.innerHTML = `<div class="flex justify-between items-center"><div class="flex items-center gap-5"><div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">${icons[c.iconType] || icons.user}</div><div><h3 class="font-bold text-lg">${c.name}</h3><p class="text-[10px] uppercase font-black tracking-widest opacity-40">${c.role}</p></div></div><div class="text-right"><div class="text-xs font-mono opacity-60">${c.shiftStart}:00-${c.shiftEnd}:00</div></div></div>`;
+                card.onclick = () => { manualEmail = c.email; if(WebCC.Properties) WebCC.Properties.autoSelectByShift = false; routingMode = 'manual'; updateUI(); };
+                list.appendChild(card);
+            });
+
+            const target = (routingMode === 'auto') ? autoActive : contacts.find(c => c.email === manualEmail);
+            const email = target ? target.email : "";
+            document.getElementById('target-name').textContent = target ? target.name : "-";
+            document.getElementById('target-email').textContent = email || "-";
+            document.getElementById('payload-to').textContent = email || "-";
+            document.getElementById('target-icon').innerHTML = target ? icons[target.iconType] : icons.user;
+
+            if (routingMode === 'auto' && window.WebCC && WebCC.Properties.selectedEmail !== email) {
+                WebCC.Properties.selectedEmail = email;
+            }
+
+            if (email !== lastFiredEmail && email !== "") {
+                WebCC.Events.fire('SelectionChanged', email);
+                lastFiredEmail = email;
+            }
+        }
+
+        window.onload = function() {
+            if (window.WebCC) {
+                WebCC.start(function(result) {
+                    const p = WebCC.Properties || {};
+                    if (p.tsvSource) { 
+                        currentRawTSV = p.tsvSource; 
+                        contacts = parseTSV(currentRawTSV); 
+                    } else {
+                        // Default Fallback
+                        contacts = [
+                            { name: "Alex Rivera", email: "a.rivera@industrial.com", role: "Night Supervisor", shiftStart: 22, shiftEnd: 6, iconType: "moon" },
+                            { name: "Sarah Jenkins", email: "s.jenkins@industrial.com", role: "Morning Lead", shiftStart: 6, shiftEnd: 14, iconType: "sun" },
+                            { name: "Mark Thompson", email: "m.thompson@industrial.com", role: "Afternoon Lead", shiftStart: 14, shiftEnd: 22, iconType: "sunset" }
+                        ];
+                        currentRawTSV = contacts.map(c => `${c.name}\t${c.email}\t${c.role}\t${c.shiftStart}\t${c.shiftEnd}\t${c.iconType}`).join('\n');
+                    }
+                    setInterval(updateUI, 1000);
+                }, {
+                    methods: {
+                        syncFromTSV: function(tsv) { currentRawTSV = tsv; contacts = parseTSV(tsv); updateUI(); },
+                        setMode: function(mode) { setMode(mode); },
+                        toggleTheme: function() { toggleThemeManual(); },
+                        setSystemHour: function(hour) { if(WebCC.Properties) WebCC.Properties.systemHour = hour; updateUI(); }
+                    },
+                    properties: { backgroundColor: 4278853402, systemHour: 12, tsvSource: "", selectedEmail: "", autoSelectByShift: true }
+                });
+            }
+        };
+    </script>
+</body>
+</html>

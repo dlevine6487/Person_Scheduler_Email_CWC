@@ -1,0 +1,102 @@
+{
+    "name": "AlarmNotificationRouterPremium",
+    "version": "1.3.0",
+    "author": "CWC AI Creator",
+    "description": "Premium Shift-based alarm routing control with HMI File Persistence and Background Logic",
+    "entryPoint": "index.html",
+    "properties": [
+        {
+            "name": "backgroundColor",
+            "type": "Color",
+            "defaultValue": "0xFF0A0F1D",
+            "description": "Background color of the control"
+        },
+        {
+            "name": "title",
+            "type": "String",
+            "defaultValue": "Alarm Router",
+            "description": "Main header text"
+        },
+        {
+            "name": "subtitle",
+            "type": "String",
+            "defaultValue": "System Ready",
+            "description": "Sub-header status text"
+        },
+        {
+            "name": "configFilePath",
+            "type": "String",
+            "defaultValue": "/home/industrial/config/shifts.tsv",
+            "description": "Path to the TSV file on the HMI storage"
+        },
+        {
+            "name": "tsvSource",
+            "type": "String",
+            "defaultValue": "",
+            "description": "Raw TSV content. Bind this to a retentive HMI Tag for persistence."
+        },
+        {
+            "name": "autoSelectByShift",
+            "type": "Bool",
+            "defaultValue": true,
+            "description": "Enable automatic selection based on time"
+        },
+        {
+            "name": "systemHour",
+            "type": "Int",
+            "defaultValue": 12,
+            "description": "Current hour for shift logic (0-23)"
+        },
+        {
+            "name": "selectedEmail",
+            "type": "String",
+            "defaultValue": "",
+            "description": "The currently selected/active recipient email (Bind to routing tag)"
+        },
+        {
+            "name": "themeControlMode",
+            "type": "String",
+            "defaultValue": "auto",
+            "description": "Theme switching mode: 'auto' or 'manual'"
+        },
+        {
+            "name": "manualTheme",
+            "type": "String",
+            "defaultValue": "dark",
+            "description": "Selected theme when mode is manual"
+        }
+    ],
+    "events": [
+        {
+            "name": "SelectionChanged",
+            "description": "Fires when a new recipient is selected (Auto or Manual)"
+        },
+        {
+            "name": "ThemeChanged",
+            "description": "Fires when the UI theme toggles"
+        },
+        {
+            "name": "Confirmed",
+            "description": "Fires when settings are applied in the editor (Trigger HMI File Save here)"
+        }
+    ],
+    "methods": [
+        {
+            "name": "syncFromTSV",
+            "description": "Loads TSV string content into the control from HMI storage"
+        },
+        {
+            "name": "setMode",
+            "description": "Switches Routing Mode between 'auto' and 'manual'"
+        },
+        {
+            "name": "toggleTheme",
+            "description": "Manually toggles the UI theme"
+        },
+        {
+            "name": "setSystemHour",
+            "description": "Updates the internal logic clock from HMI system time"
+        }
+    ],
+    "type": "guid://30a91619-ac0c-4f3f-8b62-e5cbe40c3669"
+}

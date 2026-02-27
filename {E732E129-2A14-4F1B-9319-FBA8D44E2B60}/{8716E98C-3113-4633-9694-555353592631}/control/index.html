@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Targeted Email Selector</title>
+    <!-- Dependencies for TIA Portal Runtime -->
+    <script src="libs/papaparse.min.js"></script>
+    <script src="webcc.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="flex-none h-24 px-8 flex items-center justify-between border-b" style="background: var(--bg-header); border-color: var(--border);">
+        <div class="flex items-center gap-6">
+            <div class="p-3 rounded-2xl bg-sky-500/10 border" style="border-color: rgba(56, 189, 248, 0.2);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent-sky)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+                <h1 id="main-title" class="text-xl font-black tracking-tight uppercase">Alarm Router</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <div class="status-dot"></div>
+                    <span id="main-subtitle" class="text-[10px] uppercase font-bold tracking-widest" style="color: var(--accent-emerald);">System Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-10">
+            <div class="flex flex-col items-center">
+                <span class="text-[9px] uppercase font-black mb-2 tracking-widest opacity-40">Selection Mode</span>
+                <div class="flex p-1 rounded-xl border" style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.05);">
+                    <button id="mode-auto" onclick="setMode('auto')" class="mode-btn px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all">AUTO</button>
+                    <button id="mode-manual" onclick="setMode('manual')" class="mode-btn px-4 py-1.5 text-[10px] font-bold rounded-lg transition-all">MANUAL</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <div class="flex items-center gap-3">
+                    <div id="current-shift-indicator"></div>
+                    <span id="current-time-display" class="text-2xl font-mono font-bold tracking-tighter" style="color: var(--accent-sky);">00:00:00</span>
+                </div>
+                <span id="current-shift-label" class="text-[10px] uppercase font-bold tracking-widest opacity-60">Shift Unknown</span>
+            </div>
+
+            <div class="flex gap-2 border-l pl-8" style="border-color: var(--border);">
+                <button onclick="toggleThemeManual()" class="p-3 rounded-xl hover:bg-white/5 transition-colors" style="background: transparent; border: none; cursor: pointer;">
+                    <div id="theme-icon-container"></div>
+                </button>
+                <button onclick="toggleEditor()" class="p-3 rounded-xl hover:bg-white/5 transition-colors" style="background: transparent; border: none; cursor: pointer;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex overflow-hidden">
+        <div id="contactList" class="flex-1 overflow-y-auto p-8 space-y-4 custom-scrollbar"></div>
+
+        <div class="w-96 border-l p-8 flex flex-col gap-8 flex-none" style="background: var(--bg-header); border-color: var(--border);">
+            <div>
+                <h2 class="text-[11px] font-black uppercase tracking-[0.2em] mb-6 opacity-40">Active Interface Target</h2>
+                <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                    <div class="relative flex items-center gap-4">
+                        <div id="target-icon" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500"></div>
+                        <div>
+                            <p id="target-name" class="text-lg font-bold">-</p>
+                            <p id="target-email" class="text-xs font-mono opacity-60">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest opacity-40">Email Recipient</label>
+                    <div id="payload-to" class="p-4 rounded-xl border font-mono text-xs mt-2" style="background: rgba(0,0,0,0.4); color: var(--accent-sky); border-color: rgba(255,255,255,0.05);">-</div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black uppercase tracking-widest opacity-40">Persistence Status</label>
+                    <div class="text-[11px] leading-relaxed opacity-60 mt-2">
+                        Retentive synchronization active via <code>tsvSource</code> property. Logic persists across screen transitions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDITOR MODAL -->
+    <div id="tsv-editor-overlay">
+        <div class="settings-modal w-full max-w-4xl h-full max-h-[800px] flex flex-col overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center" style="border-color: #e2e8f0;">
+                <h2 class="text-2xl font-black text-slate-900">Shift Configuration</h2>
+                <button onclick="toggleEditor()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400" style="background:transparent; border:none; cursor:pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="flex-1 p-8 flex flex-col gap-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">TSV Content</span>
+                    <div class="flex gap-2">
+                        <button onclick="exportTSV()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border-0 cursor-pointer">EXPORT</button>
+                        <button onclick="document.getElementById('importFile').click()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border-0 cursor-pointer">IMPORT</button>
+                        <input type="file" id="importFile" class="hidden" accept=".tsv,.txt" onchange="importTSV(event)">
+                    </div>
+                </div>
+                <textarea id="tsvInput" class="flex-1 w-full p-6 rounded-2xl border text-sm custom-scrollbar" style="background:#f8fafc; color:#0f172a; resize:none;" spellcheck="false"></textarea>
+            </div>
+            <div class="p-8 bg-slate-50 border-t flex justify-end gap-4 rounded-b-[1.5rem]" style="border-color: #e2e8f0;">
+                <button onclick="toggleEditor()" class="px-8 py-3 text-sm font-bold text-slate-500 hover:text-slate-900 border-0 bg-transparent cursor-pointer">CANCEL</button>
+                <button onclick="applySettings()" class="px-10 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-bold border-0 cursor-pointer">APPLY CHANGES</button>
+            </div>
+        </div>
+    </div>
+    <script src="code.js"></script>
+</body>
+</html>

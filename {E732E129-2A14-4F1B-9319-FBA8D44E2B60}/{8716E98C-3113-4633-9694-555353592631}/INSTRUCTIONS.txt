@@ -1,0 +1,32 @@
+INSTRUCTIONS FOR PACKAGING AND DEPLOYMENT
+
+1.  **Zip the Folder**:
+    - Select the content of the `{8716E98C-3113-4633-9694-555353592631}` folder (ensure `manifest.json` is at the root of the zip file).
+    - Zip these files.
+    - Rename the zip file to `{8716E98C-3113-4633-9694-555353592631}.zip`.
+
+    The structure inside the zip should look like this:
+    ```
+    /assets
+      icon.ico
+    /control
+      /libs
+        papaparse.min.js
+      code.js
+      index.html
+      styles.css
+      webcc.min.js
+    manifest.json
+    ```
+
+    **Important:** The Zip file name must match the GUID defined in `manifest.json` (which is `8716E98C-3113-4633-9694-555353592631`).
+
+2.  **Deploy to WinCC Unified**:
+    - Copy the `{8716E98C-3113-4633-9694-555353592631}.zip` file to the UserFiles/CustomControls folder on your WinCC Unified PC Runtime or Unified Comfort Panel.
+    - Refresh the Custom Controls library in TIA Portal (if you are adding it there) or ensure the Runtime loads it.
+
+3.  **TIA Portal Integration**:
+    - In TIA Portal, you should see the control "Targeted Email Selector".
+    - Drag and drop it onto a screen.
+    - Connect the `targetName` and `selectedEmail` properties to HMI tags.
+    - Connect `OnSelectionChanged` event to a script if you need to trigger an action upon selection.

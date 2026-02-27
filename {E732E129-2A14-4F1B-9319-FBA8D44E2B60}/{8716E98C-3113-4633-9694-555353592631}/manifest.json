@@ -1,0 +1,88 @@
+{
+  "mver": "1.2.0",
+  "control": {
+    "identity": {
+      "name": "TargetedEmailSelector",
+      "version": "1.0.0",
+      "displayname": "Targeted Email Selector",
+      "icon": "./assets/icon.ico",
+      "type": "guid://8716E98C-3113-4633-9694-555353592631",
+      "start": "./control/index.html"
+    },
+    "environment": {
+      "prerequisites": {
+        "renderingspace": {
+          "defaultwidth": 1000,
+          "defaultheight": 600,
+          "unit": "px"
+        }
+      },
+      "extensions": {
+        "HMI": {
+          "mandatory": false,
+          "version": "~1.0.0"
+        }
+      }
+    },
+    "metadata": {
+      "author": "CWC Expert",
+      "description": "Custom control for selecting a target person and retrieving their email address.",
+      "keywords": ["email", "selector", "target", "contacts"],
+      "generator": "https://ai.hmix.tech"
+    },
+    "contracts": {
+      "api": {
+        "methods": {
+          "syncFromTSV": {
+            "parameters": {
+              "tsv": { "type": "string" }
+            },
+            "description": "Loads TSV string content into the control from HMI storage"
+          },
+          "setSystemHour": {
+            "parameters": {
+              "hour": { "type": "number" }
+            },
+            "description": "Updates the internal logic clock from HMI system time"
+          }
+        },
+        "events": {
+          "SelectionChanged": {
+            "arguments": {
+              "email": { "type": "string" }
+            },
+            "description": "Fires when a new target is selected"
+          }
+        },
+        "properties": {
+          "targetName": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "selectedEmail": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "tsvSource": {
+            "type": "string",
+            "defaultValue": ""
+          },
+          "backgroundColor": {
+            "$ref": "#/control/types/Color",
+            "defaultValue": 4278853402
+          },
+          "systemHour": {
+            "type": "number",
+            "defaultValue": 12
+          }
+        }
+      }
+    },
+    "types": {
+      "Color": {
+        "$id": "http://tia.siemens.com/wincc-unified/types/s/color",
+        "type": "number"
+      }
+    }
+  }
+}
